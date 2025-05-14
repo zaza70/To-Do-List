@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4a6fa5">
+    <title>وضع عدم الاتصال - قائمة المهام</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #375a7f;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --light-gray: #f8f9fa;
+            --dark-gray: #343a40;
+            --border-color: #dee2e6;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-gray);
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dark-theme {
+            --light-gray: #222;
+            --border-color: #444;
+            background-color: #333;
+            color: #fff;
+        }
+
+        .offline-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            max-width: 600px;
+            width: 100%;
+            margin: 2rem auto;
+        }
+
+        .dark-theme .offline-container {
+            background-color: var(--dark-gray);
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+
+        .dark-theme h1 {
+            color: #fff;
+        }
+
+        p {
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .icon {
+            font-size: 4rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .dark-theme .icon {
+            color: #fff;
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .theme-toggle {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            opacity: 0.9;
+        }
+
+        .offline-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .cached-tasks {
+            margin-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 2rem;
+        }
+
+        .task-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            text-align: right;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+
+        .task-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-content {
+            flex-grow: 1;
+        }
+
+        .task-title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .task-meta {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .dark-theme .task-meta {
+            color: #adb5bd;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #dc3545;
+        }
+
+        .status-dot.online {
+            background-color: #28a745;
+        }
+
+        .status-text {
+            font-size: 0.9rem;
+        }
+
+        .no-tasks {
+            padding: 2rem;
+            text-align: center;
+            color: #6c757d;
+        }
+
+        .dark-theme .no-tasks {
+            color: #adb5bd;
+        }
+
+        @media (max-width: 768px) {
+            .offline-container {
+                padding: 1.5rem;
+            }
+
+            .offline-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <header>
+            <h1>قائمة المهام</h1>
+            <button id="theme-toggle" class="theme-toggle">
+                <i class="moon-icon">🌙</i>
+                <span>الوضع الليلي</span>
+            </button>
+        </header>
+
+        <div class="offline-status">
+            <div class="icon">📶</div>
+            <h1>وضع عدم الاتصال</h1>
+            <p>أنت حاليًا في وضع عدم الاتصال. يمكنك الاستمرار في استخدام التطبيق والوصول إلى المهام المخزنة محليًا. سيتم مزامنة أي تغييرات تقوم بها تلقائيًا عند استعادة الاتصال.</p>
+
+            <div class="status-indicator">
+                <div id="status-dot" class="status-dot"></div>
+                <span id="status-text" class="status-text">غير متصل</span>
+            </div>
+        </div>
+
+        <div class="cached-tasks">
+            <h2>المهام المخزنة محليًا</h2>
+            <div id="tasks-container">
+                <ul id="tasks-list" class="task-list">
+                    <li class="no-tasks">جاري تحميل المهام المخزنة...</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="offline-actions">
+            <button id="retry-btn" class="btn">
+                <span>إعادة الاتصال</span>
+            </button>
+            <a href="index.html" class="btn btn-secondary">
+                <span>الذهاب للصفحة الرئيسية</span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Check online status
+        function updateOnlineStatus() {
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+
+            if (navigator.onLine) {
+                statusDot.classList.add('online');
+                statusText.textContent = 'متصل';
+
+                // Redirect to home page after a short delay
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            } else {
+                statusDot.classList.remove('online');
+                statusText.textContent = 'غير متصل';
+            }
+        }
+
+        // Load cached tasks
+        async function loadCachedTasks() {
+            const tasksList = document.getElementById('tasks-list');
+
+            try {
+                // Try to get tasks from localStorage
+                const tasksJson = localStorage.getItem('tasks');
+
+                if (tasksJson) {
+                    const tasks = JSON.parse(tasksJson);
+
+                    if (tasks && tasks.length > 0) {
+                        tasksList.innerHTML = '';
+
+                        tasks.forEach(task => {
+                            const taskItem = document.createElement('li');
+                            taskItem.className = 'task-item';
+
+                            const taskContent = document.createElement('div');
+                            taskContent.className = 'task-content';
+
+                            const taskTitle = document.createElement('div');
+                            taskTitle.className = 'task-title';
+                            taskTitle.textContent = task.text;
+
+                            const taskMeta = document.createElement('div');
+                            taskMeta.className = 'task-meta';
+
+                            // Format date if available
+                            let metaText = `${task.category} · ${task.priority}`;
+                            if (task.dueDate) {
+                                metaText += ` · ${task.dueDate}`;
+                            }
+
+                            taskMeta.textContent = metaText;
+
+                            taskContent.appendChild(taskTitle);
+                            taskContent.appendChild(taskMeta);
+                            taskItem.appendChild(taskContent);
+
+                            tasksList.appendChild(taskItem);
+                        });
+                    } else {
+                        tasksList.innerHTML = '<li class="no-tasks">لا توجد مهام مخزنة</li>';
+                    }
+                } else {
+                    tasksList.innerHTML = '<li class="no-tasks">لا توجد مهام مخزنة</li>';
+                }
+            } catch (error) {
+                console.error('Error loading cached tasks:', error);
+                tasksList.innerHTML = '<li class="no-tasks">حدث خطأ أثناء تحميل المهام</li>';
+            }
+        }
+
+        // Toggle dark theme
+        function toggleTheme() {
+            const body = document.body;
+            const themeToggle = document.getElementById('theme-toggle');
+            const isDarkMode = body.classList.toggle('dark-theme');
+
+            localStorage.setItem('darkMode', isDarkMode);
+
+            if (isDarkMode) {
+                themeToggle.innerHTML = '<i class="sun-icon">☀️</i><span>الوضع النهاري</span>';
+            } else {
+                themeToggle.innerHTML = '<i class="moon-icon">🌙</i><span>الوضع الليلي</span>';
+            }
+        }
+
+        // Load theme preference
+        function loadTheme() {
+            const darkMode = localStorage.getItem('darkMode') === 'true';
+            const themeToggle = document.getElementById('theme-toggle');
+
+            if (darkMode) {
+                document.body.classList.add('dark-theme');
+                themeToggle.innerHTML = '<i class="sun-icon">☀️</i><span>الوضع النهاري</span>';
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Update online status initially and when it changes
+            updateOnlineStatus();
+            window.addEventListener('online', updateOnlineStatus);
+            window.addEventListener('offline', updateOnlineStatus);
+
+            // Load cached tasks
+            loadCachedTasks();
+
+            // Set up theme toggle
+            document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+            loadTheme();
+
+            // Set up retry button
+            document.getElementById('retry-btn').addEventListener('click', () => {
+                window.location.reload();
+            });
+        });
+    </script>
+</body>
+</html>

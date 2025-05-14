@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="لوحة معلومات تطبيق قائمة المهام">
+    <meta name="theme-color" content="#4a6fa5">
+    <title>لوحة المعلومات - قائمة المهام</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>لوحة المعلومات</h1>
+            <div class="header-actions">
+                <button id="theme-toggle" class="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                    <span>الوضع الليلي</span>
+                </button>
+                <a href="index.html" class="back-btn">
+                    <i class="fas fa-tasks"></i>
+                    <span>العودة للمهام</span>
+                </a>
+            </div>
+        </header>
+
+        <div class="dashboard-summary">
+            <div class="summary-card total-tasks">
+                <div class="card-icon">
+                    <i class="fas fa-list"></i>
+                </div>
+                <div class="card-content">
+                    <h3>إجمالي المهام</h3>
+                    <p id="total-tasks-count">0</p>
+                </div>
+            </div>
+            <div class="summary-card completed-tasks">
+                <div class="card-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="card-content">
+                    <h3>المهام المكتملة</h3>
+                    <p id="completed-tasks-count">0</p>
+                </div>
+            </div>
+            <div class="summary-card pending-tasks">
+                <div class="card-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="card-content">
+                    <h3>المهام المتبقية</h3>
+                    <p id="pending-tasks-count">0</p>
+                </div>
+            </div>
+            <div class="summary-card completion-rate">
+                <div class="card-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="card-content">
+                    <h3>معدل الإنجاز</h3>
+                    <p id="completion-rate">0%</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="charts-container">
+            <div class="chart-card">
+                <h2>توزيع المهام حسب الفئة</h2>
+                <div class="chart-wrapper">
+                    <canvas id="categories-chart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h2>توزيع المهام حسب الأولوية</h2>
+                <div class="chart-wrapper">
+                    <canvas id="priorities-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-card full-width">
+            <h2>معدل إنجاز المهام الأسبوعي</h2>
+            <div class="chart-wrapper">
+                <canvas id="completion-chart"></canvas>
+            </div>
+        </div>
+
+        <div class="dashboard-details">
+            <div class="details-card">
+                <h2>أكثر الفئات نشاطًا</h2>
+                <div id="most-active-category" class="details-content">
+                    <p>لا توجد بيانات كافية</p>
+                </div>
+            </div>
+            <div class="details-card">
+                <h2>المهام القادمة</h2>
+                <div id="upcoming-tasks" class="details-content">
+                    <p>لا توجد مهام قادمة</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+    <script>
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registered with scope:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.error('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

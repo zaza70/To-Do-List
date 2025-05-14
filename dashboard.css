@@ -1,0 +1,201 @@
+/* Dashboard Styles */
+.header-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.back-btn {
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.back-btn:hover {
+    opacity: 0.9;
+}
+
+.dashboard-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.summary-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: var(--transition);
+}
+
+.summary-card:hover {
+    transform: translateY(-5px);
+}
+
+.card-icon {
+    font-size: 2rem;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.total-tasks .card-icon {
+    background-color: var(--primary-color);
+}
+
+.completed-tasks .card-icon {
+    background-color: var(--category-work);
+}
+
+.pending-tasks .card-icon {
+    background-color: var(--priority-important);
+}
+
+.completion-rate .card-icon {
+    background-color: var(--category-personal);
+}
+
+.card-content h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: #666;
+}
+
+.card-content p {
+    margin: 0.5rem 0 0;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.charts-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.chart-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+    transition: var(--transition);
+}
+
+.chart-card h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    color: var(--primary-color);
+}
+
+.chart-wrapper {
+    position: relative;
+    height: 250px;
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+.dashboard-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.details-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+}
+
+.details-card h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    color: var(--primary-color);
+}
+
+.details-content {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.category-item, .upcoming-task {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.category-item:last-child, .upcoming-task:last-child {
+    border-bottom: none;
+}
+
+.category-name, .task-name {
+    font-weight: bold;
+}
+
+.category-count, .task-due {
+    color: #666;
+}
+
+/* Dark theme adjustments */
+.dark-theme .summary-card,
+.dark-theme .chart-card,
+.dark-theme .details-card {
+    background-color: #333;
+}
+
+.dark-theme .card-content h3 {
+    color: #ccc;
+}
+
+.dark-theme .category-count, 
+.dark-theme .task-due {
+    color: #aaa;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .dashboard-summary {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .charts-container,
+    .dashboard-details {
+        grid-template-columns: 1fr;
+    }
+    
+    .header-actions {
+        flex-direction: column;
+        align-items: flex-end;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-summary {
+        grid-template-columns: 1fr;
+    }
+}

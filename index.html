@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TaskMaster - تطبيق متقدم لإدارة المهام والمواعيد">
+    <meta name="theme-color" content="#4a6fa5">
+    <title>TaskMaster | إدارة المهام</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="tooltips.css">
+    <link rel="stylesheet" href="habits.css">
+    <link rel="stylesheet" href="motivation.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <!-- تحسينات إمكانية الوصول -->
+    <script>
+        // تحسين التباين للأشخاص ذوي الإعاقات البصرية
+        function applyHighContrast() {
+            document.body.classList.toggle('high-contrast');
+            localStorage.setItem('highContrast', document.body.classList.contains('high-contrast'));
+        }
+
+        // تحميل إعدادات التباين العالي
+        function loadAccessibilitySettings() {
+            if (localStorage.getItem('highContrast') === 'true') {
+                document.body.classList.add('high-contrast');
+            }
+        }
+
+        // تنفيذ عند تحميل الصفحة
+        window.addEventListener('DOMContentLoaded', loadAccessibilitySettings);
+    </script>
+</head>
+<body>
+    <!-- Skip to content link for keyboard users -->
+    <a href="#main-content" class="skip-link">تخطي إلى المحتوى الرئيسي</a>
+
+    <div class="container" id="main-content">
+        <header>
+            <div class="logo">
+                <img src="icons/taskmaster-logo.svg" alt="TaskMaster Logo" class="logo-img">
+                <h1>TaskMaster</h1>
+            </div>
+            <div class="header-actions">
+                <div class="tooltip-container">
+                    <a href="dashboard.html" class="dashboard-btn">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>لوحة المعلومات</span>
+                    </a>
+                    <div class="tooltip tooltip-bottom">عرض إحصائيات وتحليلات المهام</div>
+                </div>
+                <div class="tooltip-container">
+                    <a href="backup.html" class="backup-btn">
+                        <i class="fas fa-save"></i>
+                        <span>النسخ الاحتياطي</span>
+                    </a>
+                    <div class="tooltip tooltip-bottom">نسخ واستعادة البيانات</div>
+                </div>
+                <div class="tooltip-container">
+                    <a href="settings.html" class="settings-btn">
+                        <i class="fas fa-cog"></i>
+                        <span>الإعدادات</span>
+                    </a>
+                    <div class="tooltip tooltip-bottom">تخصيص التطبيق</div>
+                </div>
+                <div class="tooltip-container">
+                    <button id="theme-toggle" class="theme-toggle">
+                        <i class="fas fa-moon"></i>
+                        <span>الوضع الليلي</span>
+                    </button>
+                    <div class="tooltip tooltip-bottom">تبديل بين الوضع الليلي والنهاري (اختصار: T)</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="task-form">
+            <div class="input-group">
+                <input type="text" id="task-input" placeholder="أضف مهمة جديدة...">
+                <select id="task-category">
+                    <option value="شخصي">شخصي</option>
+                    <option value="عمل">عمل</option>
+                    <option value="دراسة">دراسة</option>
+                </select>
+                <select id="task-priority">
+                    <option value="عادي">عادي</option>
+                    <option value="مهم">مهم</option>
+                    <option value="عاجل">عاجل</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <input type="date" id="task-date">
+                <input type="time" id="task-time">
+                <input type="number" id="task-estimated-time" placeholder="الوقت المقدر (دقائق)" min="1">
+            </div>
+            <div class="input-group">
+                <select id="task-repeat">
+                    <option value="none">بدون تكرار</option>
+                    <option value="daily">يومي</option>
+                    <option value="workdays">أيام العمل</option>
+                    <option value="weekly">أسبوعي</option>
+                    <option value="biweekly">كل أسبوعين</option>
+                    <option value="monthly">شهري</option>
+                    <option value="last-day-month">آخر يوم من الشهر</option>
+                    <option value="quarterly">كل ثلاثة أشهر</option>
+                    <option value="yearly">سنوي</option>
+                    <option value="custom">مخصص...</option>
+                </select>
+                <div id="custom-repeat-options" class="custom-repeat-options" style="display: none;">
+                    <div class="repeat-option">
+                        <label>تكرار كل:</label>
+                        <input type="number" id="repeat-every" min="1" value="1">
+                        <select id="repeat-period">
+                            <option value="day">يوم</option>
+                            <option value="week">أسبوع</option>
+                            <option value="month">شهر</option>
+                            <option value="year">سنة</option>
+                        </select>
+                    </div>
+                    <div class="repeat-option" id="repeat-on-days">
+                        <label>في أيام:</label>
+                        <div class="weekday-selector">
+                            <label><input type="checkbox" value="0"> الأحد</label>
+                            <label><input type="checkbox" value="1"> الإثنين</label>
+                            <label><input type="checkbox" value="2"> الثلاثاء</label>
+                            <label><input type="checkbox" value="3"> الأربعاء</label>
+                            <label><input type="checkbox" value="4"> الخميس</label>
+                            <label><input type="checkbox" value="5"> الجمعة</label>
+                            <label><input type="checkbox" value="6"> السبت</label>
+                        </div>
+                    </div>
+                </div>
+                <textarea id="task-notes" placeholder="ملاحظات إضافية"></textarea>
+                <button id="add-task">إضافة <i class="fas fa-plus"></i></button>
+            </div>
+            <div id="subtasks-container" class="subtasks-container">
+                <h4>المهام الفرعية <button id="add-subtask" class="small-btn"><i class="fas fa-plus"></i></button></h4>
+                <ul id="subtasks-list">
+                    <!-- Subtasks will be added here dynamically -->
+                </ul>
+            </div>
+        </div>
+
+        <div class="app-tabs">
+            <button id="tasks-tab" class="tab-btn active">
+                <i class="fas fa-tasks"></i> المهام
+            </button>
+            <button id="habits-tab" class="tab-btn">
+                <i class="fas fa-calendar-check"></i> العادات
+            </button>
+        </div>
+
+        <div id="tasks-view" class="view-container active-view">
+            <div class="search-container">
+                <div class="search-input-group tooltip-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="search-input" placeholder="ابحث عن مهمة...">
+                    <button id="clear-search" class="clear-search-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div class="tooltip tooltip-bottom">البحث في المهام (اختصار: /)</div>
+                </div>
+            </div>
+
+        <div class="task-filters">
+            <div class="filter-group">
+                <label>تصفية حسب:</label>
+                <div class="tooltip-container">
+                    <select id="filter-category">
+                        <option value="الكل">كل الفئات</option>
+                        <!-- سيتم إضافة الفئات ديناميكيًا -->
+                    </select>
+                    <div class="tooltip tooltip-bottom">تصفية حسب الفئة (اختصار: F)</div>
+                </div>
+                <div class="tooltip-container">
+                    <select id="filter-priority">
+                        <option value="الكل">كل الأولويات</option>
+                        <option value="عادي">عادي</option>
+                        <option value="مهم">مهم</option>
+                        <option value="عاجل">عاجل</option>
+                    </select>
+                    <div class="tooltip tooltip-bottom">تصفية حسب الأولوية</div>
+                </div>
+                <div class="tooltip-container">
+                    <select id="sort-tasks">
+                        <option value="date-added">ترتيب حسب: تاريخ الإضافة</option>
+                        <option value="due-date">ترتيب حسب: تاريخ الاستحقاق</option>
+                        <option value="priority">ترتيب حسب: الأولوية</option>
+                        <option value="category">ترتيب حسب: الفئة</option>
+                    </select>
+                    <div class="tooltip tooltip-bottom">ترتيب المهام</div>
+                </div>
+            </div>
+            <div class="action-buttons">
+                <button id="clear-completed">حذف المكتملة</button>
+                <button id="clear-all">حذف الكل</button>
+                <div class="dropdown">
+                    <button id="export-btn" class="dropdown-btn">تصدير <i class="fas fa-caret-down"></i></button>
+                    <div class="dropdown-content">
+                        <a href="#" id="export-pdf">PDF</a>
+                        <a href="#" id="export-csv">CSV</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tasks-container">
+            <ul id="tasks-list">
+                <!-- Tasks will be added here dynamically -->
+            </ul>
+        </div>
+    </div>
+
+    <div id="habits-view" class="view-container">
+        <div class="habits-header">
+            <h3>العادات اليومية</h3>
+            <div class="habits-actions">
+                <button id="manage-categories-btn" class="manage-categories-btn">
+                    <i class="fas fa-folder"></i> إدارة الفئات
+                </button>
+                <button id="add-habit-btn" class="add-habit-btn">
+                    <i class="fas fa-plus"></i> إضافة عادة جديدة
+                </button>
+            </div>
+        </div>
+
+        <div class="habits-stats">
+            <div class="habit-stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value" id="completed-habits-count">0</span>
+                    <span class="stat-label">مكتملة اليوم</span>
+                </div>
+            </div>
+            <div class="habit-stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-calendar-day"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value" id="current-streak">0</span>
+                    <span class="stat-label">أيام متتالية</span>
+                </div>
+            </div>
+            <div class="habit-stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value" id="longest-streak">0</span>
+                    <span class="stat-label">أطول سلسلة</span>
+                </div>
+            </div>
+            <div class="habit-stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value" id="total-points">0</span>
+                    <span class="stat-label">النقاط</span>
+                </div>
+            </div>
+            <div class="habit-stat-card level-card">
+                <div class="stat-icon">
+                    <i class="fas fa-level-up-alt"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="level-info">
+                        <span class="level-label">المستوى</span>
+                        <span class="level-value" id="user-level">1</span>
+                    </div>
+                    <div class="level-progress-container">
+                        <div class="level-progress" id="level-progress-bar"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="habits-achievements">
+            <h4>الإنجازات والشارات <span class="badge" id="new-badges-count">0</span></h4>
+            <div class="achievements-container" id="achievements-container">
+                <!-- Achievements will be added here dynamically -->
+            </div>
+            <button id="view-all-achievements" class="view-all-btn">عرض جميع الإنجازات</button>
+        </div>
+
+        <div class="habits-charts">
+            <div class="chart-container">
+                <h4>تقدم العادات (أسبوعي)</h4>
+                <canvas id="habits-weekly-chart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h4>معدل الإكمال (شهري)</h4>
+                <canvas id="habits-monthly-chart"></canvas>
+            </div>
+        </div>
+
+        <div class="habits-calendar">
+            <h4>سجل الأسبوع</h4>
+            <div class="week-calendar" id="habits-week-calendar">
+                <!-- Week calendar will be generated dynamically -->
+            </div>
+        </div>
+
+        <div class="habits-heatmap">
+            <h4>مخطط العام <span id="heatmap-year"></span></h4>
+            <div id="habits-heatmap" class="heatmap-container">
+                <!-- Heatmap will be generated dynamically -->
+            </div>
+        </div>
+
+        <div class="habits-view-options">
+            <h4>طريقة العرض</h4>
+            <div class="view-buttons">
+                <button id="list-view-btn" class="view-btn active"><i class="fas fa-list"></i> قائمة</button>
+                <button id="card-view-btn" class="view-btn"><i class="fas fa-th-large"></i> بطاقات</button>
+                <button id="chart-view-btn" class="view-btn"><i class="fas fa-chart-line"></i> مخطط</button>
+            </div>
+        </div>
+
+        <div class="habits-group-options">
+            <h4>تجميع حسب</h4>
+            <div class="group-buttons">
+                <button id="no-group-btn" class="group-btn active"><i class="fas fa-ban"></i> بدون تجميع</button>
+                <button id="category-group-btn" class="group-btn"><i class="fas fa-folder"></i> الفئة</button>
+                <button id="frequency-group-btn" class="group-btn"><i class="fas fa-calendar-alt"></i> التكرار</button>
+            </div>
+        </div>
+
+        <div class="habits-challenges">
+            <div class="challenges-header">
+                <h4>التحديات النشطة</h4>
+                <button id="create-challenge-btn" class="small-btn"><i class="fas fa-plus"></i> تحدي جديد</button>
+            </div>
+            <div class="challenges-container" id="active-challenges">
+                <!-- Active challenges will be added here dynamically -->
+                <div class="empty-challenges-message">لا توجد تحديات نشطة. انقر على "تحدي جديد" لإنشاء تحدي.</div>
+            </div>
+
+            <div class="weekly-challenge">
+                <div class="challenge-header">
+                    <h4>تحدي الأسبوع</h4>
+                    <span class="challenge-timer" id="weekly-challenge-timer">6 أيام متبقية</span>
+                </div>
+                <div class="challenge-content">
+                    <div class="challenge-description">أكمل جميع عاداتك لمدة 7 أيام متتالية</div>
+                    <div class="challenge-progress-container">
+                        <div class="challenge-progress-bar">
+                            <div class="challenge-progress" id="weekly-challenge-progress" style="width: 14%"></div>
+                        </div>
+                        <div class="challenge-progress-text">1/7 أيام</div>
+                    </div>
+                    <div class="challenge-reward">
+                        <span class="reward-label">المكافأة:</span>
+                        <span class="reward-value">50 نقطة + شارة "ملتزم أسبوعي"</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="habits-container">
+            <ul id="habits-list" class="habits-list-view">
+                <!-- Habits will be added here dynamically -->
+            </ul>
+        </div>
+    </div>
+
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>تعديل المهمة</h2>
+            <input type="text" id="edit-task-input">
+            <div class="edit-options">
+                <select id="edit-task-category">
+                    <option value="شخصي">شخصي</option>
+                    <option value="عمل">عمل</option>
+                    <option value="دراسة">دراسة</option>
+                </select>
+                <select id="edit-task-priority">
+                    <option value="عادي">عادي</option>
+                    <option value="مهم">مهم</option>
+                    <option value="عاجل">عاجل</option>
+                </select>
+            </div>
+            <div class="edit-options">
+                <input type="date" id="edit-task-date">
+                <input type="time" id="edit-task-time">
+                <input type="number" id="edit-task-estimated-time" placeholder="الوقت المقدر (دقائق)" min="1">
+            </div>
+            <div class="edit-options">
+                <select id="edit-task-repeat">
+                    <option value="none">بدون تكرار</option>
+                    <option value="daily">يومي</option>
+                    <option value="workdays">أيام العمل</option>
+                    <option value="weekly">أسبوعي</option>
+                    <option value="biweekly">كل أسبوعين</option>
+                    <option value="monthly">شهري</option>
+                    <option value="last-day-month">آخر يوم من الشهر</option>
+                    <option value="quarterly">كل ثلاثة أشهر</option>
+                    <option value="yearly">سنوي</option>
+                    <option value="custom">مخصص...</option>
+                </select>
+                <div id="edit-custom-repeat-options" class="custom-repeat-options" style="display: none;">
+                    <div class="repeat-option">
+                        <label>تكرار كل:</label>
+                        <input type="number" id="edit-repeat-every" min="1" value="1">
+                        <select id="edit-repeat-period">
+                            <option value="day">يوم</option>
+                            <option value="week">أسبوع</option>
+                            <option value="month">شهر</option>
+                            <option value="year">سنة</option>
+                        </select>
+                    </div>
+                    <div class="repeat-option" id="edit-repeat-on-days">
+                        <label>في أيام:</label>
+                        <div class="weekday-selector">
+                            <label><input type="checkbox" value="0"> الأحد</label>
+                            <label><input type="checkbox" value="1"> الإثنين</label>
+                            <label><input type="checkbox" value="2"> الثلاثاء</label>
+                            <label><input type="checkbox" value="3"> الأربعاء</label>
+                            <label><input type="checkbox" value="4"> الخميس</label>
+                            <label><input type="checkbox" value="5"> الجمعة</label>
+                            <label><input type="checkbox" value="6"> السبت</label>
+                        </div>
+                    </div>
+                </div>
+                <textarea id="edit-task-notes" placeholder="ملاحظات إضافية"></textarea>
+            </div>
+            <div id="edit-subtasks-container" class="subtasks-container">
+                <h4>المهام الفرعية <button id="edit-add-subtask" class="small-btn"><i class="fas fa-plus"></i></button></h4>
+                <ul id="edit-subtasks-list">
+                    <!-- Subtasks will be added here dynamically -->
+                </ul>
+            </div>
+
+            <div class="related-tasks-container">
+                <h4>المهام المرتبطة <button id="add-related-task" class="small-btn"><i class="fas fa-link"></i></button></h4>
+                <div class="related-tasks-options">
+                    <div class="relation-type-selector">
+                        <label>نوع العلاقة:</label>
+                        <select id="relation-type">
+                            <option value="depends-on">يعتمد على</option>
+                            <option value="blocks">يمنع</option>
+                            <option value="related-to">مرتبط بـ</option>
+                            <option value="duplicates">مكرر من</option>
+                        </select>
+                    </div>
+                    <div class="related-task-selector">
+                        <label>المهمة:</label>
+                        <select id="related-task-id">
+                            <!-- Tasks will be added here dynamically -->
+                        </select>
+                        <button id="add-relation" class="small-btn">ربط</button>
+                    </div>
+                </div>
+                <ul id="related-tasks-list" class="related-tasks-list">
+                    <!-- Related tasks will be added here dynamically -->
+                </ul>
+            </div>
+            <div class="edit-options">
+                <h4>التذكيرات</h4>
+                <div class="reminders-container">
+                    <div class="reminder-option">
+                        <label>تذكير قبل الموعد بـ:</label>
+                        <div class="reminder-time-selector">
+                            <input type="number" id="reminder-time-value" min="1" value="30">
+                            <select id="reminder-time-unit">
+                                <option value="minutes">دقائق</option>
+                                <option value="hours">ساعات</option>
+                                <option value="days">أيام</option>
+                            </select>
+                            <button id="add-reminder" class="small-btn">إضافة</button>
+                        </div>
+                    </div>
+                    <div id="reminders-list" class="reminders-list">
+                        <!-- Reminders will be added here dynamically -->
+                    </div>
+                    <div class="reminder-notification-options">
+                        <label>طريقة التذكير:</label>
+                        <div class="notification-options">
+                            <label><input type="checkbox" id="notify-browser" checked> إشعار المتصفح</label>
+                            <label><input type="checkbox" id="notify-email"> البريد الإلكتروني</label>
+                            <input type="email" id="edit-task-email" placeholder="البريد الإلكتروني للتذكير">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="action-buttons">
+                <button id="save-edit">حفظ التغييرات</button>
+                <button id="share-task" class="share-btn"><i class="fas fa-share-alt"></i> مشاركة</button>
+                <button id="show-comments" class="comments-btn"><i class="fas fa-comments"></i> التعليقات</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div id="share-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-share-modal">&times;</span>
+            <h2>مشاركة المهمة</h2>
+            <div class="share-options">
+                <p>رابط المشاركة:</p>
+                <div class="share-link-container">
+                    <input type="text" id="share-link" readonly>
+                    <button id="copy-link" class="small-btn"><i class="fas fa-copy"></i> نسخ</button>
+                </div>
+                <div class="social-share">
+                    <button class="social-btn whatsapp"><i class="fab fa-whatsapp"></i> واتساب</button>
+                    <button class="social-btn email"><i class="fas fa-envelope"></i> بريد إلكتروني</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comments Modal -->
+    <div id="comments-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-comments-modal">&times;</span>
+            <h2>التعليقات</h2>
+            <div class="comments-container">
+                <ul id="comments-list">
+                    <!-- Comments will be added here dynamically -->
+                </ul>
+            </div>
+            <div class="add-comment">
+                <textarea id="comment-input" placeholder="أضف تعليقًا..."></textarea>
+                <button id="add-comment" class="small-btn">إضافة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Habit Modal -->
+    <div id="habit-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-habit-modal">&times;</span>
+            <h2 id="habit-modal-title">إضافة عادة جديدة</h2>
+            <div class="habit-form">
+                <div class="form-group">
+                    <label for="habit-name">اسم العادة:</label>
+                    <input type="text" id="habit-name" placeholder="مثال: شرب الماء، قراءة كتاب...">
+                </div>
+
+                <div class="form-group">
+                    <label for="habit-type">نوع العادة:</label>
+                    <select id="habit-type">
+                        <option value="boolean">بسيطة (نعم/لا)</option>
+                        <option value="counter">كمية (عداد)</option>
+                        <option value="timer">وقت (مؤقت)</option>
+                    </select>
+                </div>
+
+                <div id="habit-goal-container" class="form-group" style="display: none;">
+                    <label for="habit-goal">الهدف اليومي:</label>
+                    <div class="goal-input-group">
+                        <input type="number" id="habit-goal" min="1" value="1">
+                        <select id="habit-unit">
+                            <option value="مرات">مرات</option>
+                            <option value="كوب">أكواب</option>
+                            <option value="صفحة">صفحات</option>
+                            <option value="دقيقة">دقائق</option>
+                            <option value="ساعة">ساعات</option>
+                            <option value="خطوة">خطوات</option>
+                            <option value="custom">وحدة مخصصة</option>
+                        </select>
+                    </div>
+                    <input type="text" id="habit-custom-unit" placeholder="أدخل وحدة مخصصة" style="display: none;">
+                </div>
+
+                <div class="form-group">
+                    <label for="habit-frequency">التكرار:</label>
+                    <select id="habit-frequency">
+                        <option value="daily">يومي</option>
+                        <option value="weekly">أيام محددة من الأسبوع</option>
+                        <option value="monthly">أيام محددة من الشهر</option>
+                    </select>
+                </div>
+
+                <div id="habit-days-container" class="form-group" style="display: none;">
+                    <label>أيام التكرار:</label>
+                    <div class="weekday-selector">
+                        <label><input type="checkbox" value="0"> الأحد</label>
+                        <label><input type="checkbox" value="1"> الإثنين</label>
+                        <label><input type="checkbox" value="2"> الثلاثاء</label>
+                        <label><input type="checkbox" value="3"> الأربعاء</label>
+                        <label><input type="checkbox" value="4"> الخميس</label>
+                        <label><input type="checkbox" value="5"> الجمعة</label>
+                        <label><input type="checkbox" value="6"> السبت</label>
+                    </div>
+                </div>
+
+                <div id="habit-dates-container" class="form-group" style="display: none;">
+                    <label>أيام التكرار من الشهر:</label>
+                    <div class="month-days-selector" id="month-days-selector">
+                        <!-- Will be filled dynamically -->
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="habit-reminder">تذكير:</label>
+                    <div class="reminder-input-group">
+                        <input type="time" id="habit-reminder-time">
+                        <button id="add-habit-reminder" class="small-btn">إضافة تذكير</button>
+                    </div>
+                    <div id="habit-reminders-list" class="reminders-list">
+                        <!-- Reminders will be added here dynamically -->
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="habit-reset-schedule">جدول إعادة التعيين:</label>
+                    <select id="habit-reset-schedule">
+                        <option value="">بدون إعادة تعيين</option>
+                        <option value="daily">يومي</option>
+                        <option value="weekly">أسبوعي</option>
+                        <option value="monthly">شهري</option>
+                    </select>
+                    <small class="form-hint">يحدد متى يتم إعادة تعيين تقدم العادة تلقائياً</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="habit-category">الفئة:</label>
+                    <div class="category-selector">
+                        <select id="habit-category">
+                            <option value="عام">عام</option>
+                            <!-- سيتم إضافة الفئات ديناميكيًا -->
+                        </select>
+                        <button id="quick-add-category" class="small-btn" type="button">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="habit-color">اللون:</label>
+                    <div class="color-selector">
+                        <input type="color" id="habit-color" value="#4a6fa5">
+                        <div class="color-presets">
+                            <span class="color-preset" style="background-color: #4a6fa5;" data-color="#4a6fa5"></span>
+                            <span class="color-preset" style="background-color: #28a745;" data-color="#28a745"></span>
+                            <span class="color-preset" style="background-color: #dc3545;" data-color="#dc3545"></span>
+                            <span class="color-preset" style="background-color: #ffc107;" data-color="#ffc107"></span>
+                            <span class="color-preset" style="background-color: #17a2b8;" data-color="#17a2b8"></span>
+                            <span class="color-preset" style="background-color: #6f42c1;" data-color="#6f42c1"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="habit-icon">الأيقونة:</label>
+                    <div class="icon-selector">
+                        <button id="show-icons" class="small-btn"><i class="fas fa-icons"></i> اختر أيقونة</button>
+                        <div class="selected-icon">
+                            <i id="habit-icon-preview" class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                    <input type="hidden" id="habit-icon" value="fa-check-circle">
+                </div>
+
+                <div class="form-group">
+                    <label for="habit-notes">ملاحظات:</label>
+                    <textarea id="habit-notes" placeholder="ملاحظات إضافية حول هذه العادة..."></textarea>
+                </div>
+
+                <div class="action-buttons">
+                    <button id="save-habit" class="primary-btn">حفظ العادة</button>
+                    <button id="cancel-habit" class="secondary-btn">إلغاء</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Icon Picker Modal -->
+    <div id="icon-picker-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-icon-modal">&times;</span>
+            <h3>اختر أيقونة</h3>
+            <div class="icon-categories">
+                <button data-category="general" class="icon-category-btn active">عام</button>
+                <button data-category="health" class="icon-category-btn">صحة</button>
+                <button data-category="education" class="icon-category-btn">تعليم</button>
+                <button data-category="productivity" class="icon-category-btn">إنتاجية</button>
+                <button data-category="finance" class="icon-category-btn">مالية</button>
+                <button data-category="social" class="icon-category-btn">اجتماعي</button>
+            </div>
+            <div class="icon-search">
+                <input type="text" id="icon-search" placeholder="ابحث عن أيقونة...">
+            </div>
+            <div class="icons-container" id="icons-container">
+                <!-- Icons will be added here dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Achievements Modal -->
+    <div id="achievements-modal" class="modal">
+        <div class="modal-content wide-modal">
+            <span class="close-achievements-modal">&times;</span>
+            <h2>الإنجازات والشارات</h2>
+            <div class="achievements-tabs">
+                <button class="achievement-tab active" data-tab="earned">الشارات المكتسبة</button>
+                <button class="achievement-tab" data-tab="locked">الشارات المقفلة</button>
+            </div>
+            <div class="achievements-grid" id="achievements-grid">
+                <!-- Achievements will be added here dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Achievement Unlocked Modal -->
+    <div id="achievement-unlocked-modal" class="modal achievement-popup">
+        <div class="modal-content achievement-popup-content">
+            <div class="achievement-popup-header">
+                <i class="fas fa-award"></i>
+                <h3>إنجاز جديد!</h3>
+            </div>
+            <div class="achievement-popup-body">
+                <div class="achievement-badge" id="unlocked-badge">
+                    <i class="fas fa-medal"></i>
+                </div>
+                <div class="achievement-info">
+                    <h4 id="unlocked-achievement-title">عنوان الإنجاز</h4>
+                    <p id="unlocked-achievement-description">وصف الإنجاز</p>
+                    <div class="achievement-reward">
+                        <span class="reward-label">المكافأة:</span>
+                        <span id="unlocked-achievement-reward" class="reward-value">10 نقاط</span>
+                    </div>
+                </div>
+            </div>
+            <button id="close-achievement-popup" class="primary-btn">رائع!</button>
+        </div>
+    </div>
+
+    <!-- Create Challenge Modal -->
+    <div id="create-challenge-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-challenge-modal">&times;</span>
+            <h2>إنشاء تحدي جديد</h2>
+            <div class="challenge-form">
+                <div class="form-group">
+                    <label for="challenge-title">عنوان التحدي:</label>
+                    <input type="text" id="challenge-title" placeholder="مثال: أكمل عادة القراءة لمدة 10 أيام">
+                </div>
+
+                <div class="form-group">
+                    <label for="challenge-type">نوع التحدي:</label>
+                    <select id="challenge-type">
+                        <option value="streak">سلسلة متتالية</option>
+                        <option value="completion">إكمال عدد محدد</option>
+                        <option value="consistency">الالتزام بنسبة محددة</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="challenge-habits">العادات المشمولة:</label>
+                    <div class="challenge-habits-selector" id="challenge-habits-selector">
+                        <!-- Habits checkboxes will be added here dynamically -->
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="challenge-goal">الهدف:</label>
+                    <div class="goal-input-group">
+                        <input type="number" id="challenge-goal" min="1" value="7">
+                        <select id="challenge-goal-unit">
+                            <option value="days">أيام</option>
+                            <option value="times">مرات</option>
+                            <option value="percent">نسبة مئوية</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="challenge-duration">المدة:</label>
+                    <div class="duration-input-group">
+                        <input type="number" id="challenge-duration" min="1" value="7">
+                        <select id="challenge-duration-unit">
+                            <option value="days">أيام</option>
+                            <option value="weeks">أسابيع</option>
+                            <option value="months">شهور</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="challenge-reward">المكافأة:</label>
+                    <div class="reward-input-group">
+                        <input type="number" id="challenge-reward-points" min="1" value="20">
+                        <span class="reward-points-label">نقطة</span>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button id="save-challenge" class="primary-btn">إنشاء التحدي</button>
+                    <button id="cancel-challenge" class="secondary-btn">إلغاء</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Motivational Quote Modal -->
+    <div id="motivational-quote-modal" class="modal quote-popup">
+        <div class="modal-content quote-popup-content">
+            <div class="quote-popup-header">
+                <i class="fas fa-lightbulb"></i>
+                <h3>اقتباس اليوم</h3>
+            </div>
+            <div class="quote-popup-body">
+                <blockquote id="motivational-quote">
+                    "العادات هي في البداية خيوط رفيعة، ومع التكرار تصبح كابلات تقيدنا."
+                </blockquote>
+                <p id="quote-author">- صموئيل جونسون</p>
+            </div>
+            <button id="close-quote-popup" class="primary-btn">شكراً!</button>
+        </div>
+    </div>
+
+    <!-- Habit Categories Modal -->
+    <div id="habit-categories-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-categories-modal">&times;</span>
+            <h2>إدارة فئات العادات</h2>
+            <div class="categories-form">
+                <div class="form-group">
+                    <label for="new-category-name">اسم الفئة الجديدة:</label>
+                    <div class="category-input-group">
+                        <input type="text" id="new-category-name" placeholder="أدخل اسم الفئة...">
+                        <input type="color" id="new-category-color" value="#4a6fa5">
+                        <button id="add-category-btn" class="small-btn">إضافة</button>
+                    </div>
+                </div>
+                <div class="categories-list-container">
+                    <h3>الفئات الحالية</h3>
+                    <ul id="categories-list" class="categories-list">
+                        <!-- Categories will be added here dynamically -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Habit Details Modal -->
+    <div id="habit-details-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-habit-details-modal">&times;</span>
+            <div class="habit-details-header">
+                <i id="habit-details-icon" class="fas fa-check-circle"></i>
+                <h2 id="habit-details-name">اسم العادة</h2>
+            </div>
+            <div class="habit-details-stats">
+                <div class="habit-stat">
+                    <span class="stat-label">الحالية:</span>
+                    <span id="habit-details-current-streak" class="stat-value">0</span>
+                    <span class="stat-unit">أيام</span>
+                </div>
+                <div class="habit-stat">
+                    <span class="stat-label">أطول سلسلة:</span>
+                    <span id="habit-details-longest-streak" class="stat-value">0</span>
+                    <span class="stat-unit">أيام</span>
+                </div>
+                <div class="habit-stat">
+                    <span class="stat-label">نسبة الإكمال:</span>
+                    <span id="habit-details-completion-rate" class="stat-value">0%</span>
+                </div>
+            </div>
+            <div class="habit-details-calendar">
+                <h3>سجل الشهر</h3>
+                <div id="habit-details-calendar" class="month-calendar">
+                    <!-- Calendar will be generated dynamically -->
+                </div>
+            </div>
+            <div class="habit-details-notes">
+                <h3>ملاحظات</h3>
+                <p id="habit-details-notes-content">لا توجد ملاحظات</p>
+            </div>
+            <div class="action-buttons">
+                <button id="edit-habit-btn" class="primary-btn"><i class="fas fa-edit"></i> تعديل</button>
+                <button id="delete-habit-btn" class="danger-btn"><i class="fas fa-trash"></i> حذف</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accessibility button -->
+    <button id="accessibility-btn" class="accessibility-btn" aria-label="خيارات إمكانية الوصول" onclick="applyHighContrast()">
+        <i class="fas fa-universal-access"></i>
+    </button>
+
+    <script src="script.js"></script>
+    <script src="advanced-tasks.js"></script>
+    <script src="backup.js"></script>
+    <script src="welcome.js"></script>
+    <script src="keyboard.js"></script>
+    <script src="drag-drop.js"></script>
+    <script src="habits.js"></script>
+    <script src="habits-charts.js"></script>
+    <script src="motivation.js"></script>
+    <script>
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registered with scope:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.error('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

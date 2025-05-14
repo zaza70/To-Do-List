@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="إعدادات تطبيق قائمة المهام">
+    <meta name="theme-color" content="#4a6fa5">
+    <title>الإعدادات - قائمة المهام</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="settings.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>الإعدادات</h1>
+            <div class="header-actions">
+                <a href="index.html" class="back-btn">
+                    <i class="fas fa-tasks"></i>
+                    <span>العودة للمهام</span>
+                </a>
+                <button id="theme-toggle" class="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                    <span>الوضع الليلي</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="settings-container">
+            <!-- فئات المهام -->
+            <div class="settings-section">
+                <h2>فئات المهام</h2>
+                <p>يمكنك إضافة فئات مخصصة للمهام وتعديل الفئات الموجودة.</p>
+                
+                <div class="categories-container">
+                    <div class="categories-list" id="categories-list">
+                        <!-- سيتم إضافة الفئات هنا ديناميكيًا -->
+                    </div>
+                    
+                    <div class="add-category">
+                        <input type="text" id="new-category-name" placeholder="اسم الفئة الجديدة">
+                        <input type="color" id="new-category-color" value="#4a6fa5">
+                        <button id="add-category-btn" class="primary-btn">
+                            <i class="fas fa-plus"></i> إضافة فئة
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ألوان الأولويات -->
+            <div class="settings-section">
+                <h2>ألوان الأولويات</h2>
+                <p>يمكنك تخصيص ألوان الأولويات المختلفة.</p>
+                
+                <div class="priorities-container">
+                    <div class="priority-item">
+                        <span class="priority-label">عادي</span>
+                        <input type="color" id="priority-normal-color" class="priority-color">
+                    </div>
+                    <div class="priority-item">
+                        <span class="priority-label">مهم</span>
+                        <input type="color" id="priority-important-color" class="priority-color">
+                    </div>
+                    <div class="priority-item">
+                        <span class="priority-label">عاجل</span>
+                        <input type="color" id="priority-urgent-color" class="priority-color">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ترتيب المهام -->
+            <div class="settings-section">
+                <h2>ترتيب المهام</h2>
+                <p>اختر الطريقة التي يتم بها ترتيب المهام افتراضيًا.</p>
+                
+                <div class="sort-options">
+                    <div class="sort-option">
+                        <input type="radio" id="sort-date-added" name="sort-option" value="date-added">
+                        <label for="sort-date-added">حسب تاريخ الإضافة (الأحدث أولاً)</label>
+                    </div>
+                    <div class="sort-option">
+                        <input type="radio" id="sort-due-date" name="sort-option" value="due-date">
+                        <label for="sort-due-date">حسب تاريخ الاستحقاق (الأقرب أولاً)</label>
+                    </div>
+                    <div class="sort-option">
+                        <input type="radio" id="sort-priority" name="sort-option" value="priority">
+                        <label for="sort-priority">حسب الأولوية (الأعلى أولاً)</label>
+                    </div>
+                    <div class="sort-option">
+                        <input type="radio" id="sort-category" name="sort-option" value="category">
+                        <label for="sort-category">حسب الفئة (أبجديًا)</label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- إعدادات أخرى -->
+            <div class="settings-section">
+                <h2>إعدادات أخرى</h2>
+                
+                <div class="other-settings">
+                    <div class="setting-item">
+                        <label for="auto-priority">تفعيل الأولوية التلقائية بناءً على تاريخ الاستحقاق</label>
+                        <label class="switch">
+                            <input type="checkbox" id="auto-priority">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label for="show-completed">عرض المهام المكتملة</label>
+                        <label class="switch">
+                            <input type="checkbox" id="show-completed" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label for="enable-notifications">تفعيل الإشعارات</label>
+                        <label class="switch">
+                            <input type="checkbox" id="enable-notifications" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- أزرار الحفظ وإعادة الضبط -->
+            <div class="settings-actions">
+                <button id="save-settings" class="primary-btn">
+                    <i class="fas fa-save"></i> حفظ الإعدادات
+                </button>
+                <button id="reset-settings" class="secondary-btn">
+                    <i class="fas fa-undo"></i> إعادة ضبط الإعدادات
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="settings.js"></script>
+    <script>
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registered with scope:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.error('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

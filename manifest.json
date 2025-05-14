@@ -1,0 +1,40 @@
+{
+  "name": "TaskMaster",
+  "short_name": "TaskMaster",
+  "description": "تطبيق متقدم لإدارة المهام والمواعيد",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#f8f9fa",
+  "theme_color": "#4a6fa5",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Add New Task",
+      "short_name": "New Task",
+      "description": "Add a new task to TaskMaster",
+      "url": "/index.html?action=new",
+      "icons": [{ "src": "/icons/taskmaster-logo.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View TaskMaster dashboard",
+      "url": "/dashboard.html",
+      "icons": [{ "src": "/icons/taskmaster-logo.svg", "sizes": "192x192" }]
+    }
+  ]
+}

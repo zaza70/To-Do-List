@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>النسخ الاحتياطي والاستعادة - قائمة المهام</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        .backup-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+        
+        .backup-section {
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .backup-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .backup-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .backup-section p {
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+        
+        .file-input-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+        
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .file-input-button {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-block;
+        }
+        
+        .file-name {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .result-message {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .result-message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+        
+        .result-message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .test-section {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+        }
+        
+        .test-results {
+            font-family: monospace;
+            white-space: pre-wrap;
+            background-color: #333;
+            color: #fff;
+            padding: 1rem;
+            border-radius: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>النسخ الاحتياطي والاستعادة</h1>
+            <div class="header-actions">
+                <a href="index.html" class="back-btn">
+                    <i class="fas fa-tasks"></i>
+                    <span>العودة للمهام</span>
+                </a>
+                <button id="theme-toggle" class="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                    <span>الوضع الليلي</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="backup-container">
+            <div class="backup-section">
+                <h2>إنشاء نسخة احتياطية</h2>
+                <p>قم بإنشاء نسخة احتياطية من جميع مهامك وإعداداتك. سيتم تنزيل ملف JSON يمكنك استخدامه لاستعادة بياناتك لاحقًا.</p>
+                <button id="create-backup" class="primary-btn">
+                    <i class="fas fa-download"></i> إنشاء نسخة احتياطية
+                </button>
+                <div id="backup-result" class="result-message"></div>
+            </div>
+
+            <div class="backup-section">
+                <h2>استعادة من نسخة احتياطية</h2>
+                <p>استعد مهامك وإعداداتك من نسخة احتياطية سابقة. سيتم استبدال جميع البيانات الحالية بالبيانات من النسخة الاحتياطية.</p>
+                <div class="file-input-container">
+                    <div class="file-input-wrapper">
+                        <div class="file-input-button">
+                            <i class="fas fa-upload"></i> اختر ملف النسخة الاحتياطية
+                        </div>
+                        <input type="file" id="restore-file" accept=".json">
+                    </div>
+                    <div id="file-name" class="file-name">لم يتم اختيار ملف</div>
+                </div>
+                <button id="restore-backup" class="primary-btn" disabled>
+                    <i class="fas fa-undo"></i> استعادة البيانات
+                </button>
+                <div id="restore-result" class="result-message"></div>
+            </div>
+
+            <div class="backup-section">
+                <h2>اختبار التطبيق</h2>
+                <p>قم بتشغيل الاختبارات الآلية للتأكد من أن جميع وظائف التطبيق تعمل بشكل صحيح.</p>
+                <button id="run-tests" class="primary-btn">
+                    <i class="fas fa-vial"></i> تشغيل الاختبارات
+                </button>
+                <div class="test-section">
+                    <div id="test-summary"></div>
+                    <div id="test-results" class="test-results"></div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <a href="index.html" class="back-btn">
+                    <i class="fas fa-arrow-right"></i> العودة للمهام
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="backup.js"></script>
+    <script src="tests.js"></script>
+    <script>
+        // DOM Elements
+        const themeToggle = document.getElementById('theme-toggle');
+        const createBackupBtn = document.getElementById('create-backup');
+        const backupResult = document.getElementById('backup-result');
+        const restoreFileInput = document.getElementById('restore-file');
+        const fileName = document.getElementById('file-name');
+        const restoreBackupBtn = document.getElementById('restore-backup');
+        const restoreResult = document.getElementById('restore-result');
+        const runTestsBtn = document.getElementById('run-tests');
+        const testSummary = document.getElementById('test-summary');
+        const testResults = document.getElementById('test-results');
+        
+        // Load theme
+        function loadTheme() {
+            const darkMode = localStorage.getItem('darkMode') === 'true';
+            if (darkMode) {
+                document.body.classList.add('dark-theme');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i><span>الوضع النهاري</span>';
+            }
+        }
+        
+        // Toggle theme
+        function toggleTheme() {
+            const isDarkMode = document.body.classList.toggle('dark-theme');
+            localStorage.setItem('darkMode', isDarkMode);
+            
+            if (isDarkMode) {
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i><span>الوضع النهاري</span>';
+            } else {
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i><span>الوضع الليلي</span>';
+            }
+        }
+        
+        // Setup event listeners
+        function setupEventListeners() {
+            themeToggle.addEventListener('click', toggleTheme);
+            
+            createBackupBtn.addEventListener('click', () => {
+                try {
+                    const backup = createBackup();
+                    backupResult.textContent = `تم إنشاء نسخة احتياطية بنجاح! (${backup.tasks.length} مهمة)`;
+                    backupResult.className = 'result-message success';
+                } catch (error) {
+                    backupResult.textContent = `خطأ: ${error.message}`;
+                    backupResult.className = 'result-message error';
+                }
+            });
+            
+            restoreFileInput.addEventListener('change', () => {
+                if (restoreFileInput.files.length > 0) {
+                    fileName.textContent = restoreFileInput.files[0].name;
+                    restoreBackupBtn.disabled = false;
+                } else {
+                    fileName.textContent = 'لم يتم اختيار ملف';
+                    restoreBackupBtn.disabled = true;
+                }
+            });
+            
+            restoreBackupBtn.addEventListener('click', () => {
+                handleRestoreFile(restoreFileInput)
+                    .then(result => {
+                        restoreResult.textContent = `تمت استعادة البيانات بنجاح! (${result.taskCount} مهمة)`;
+                        restoreResult.className = 'result-message success';
+                        
+                        // Reload tasks
+                        loadTasks();
+                    })
+                    .catch(error => {
+                        restoreResult.textContent = `خطأ: ${error.error}`;
+                        restoreResult.className = 'result-message error';
+                    });
+            });
+            
+            runTestsBtn.addEventListener('click', () => {
+                // Clear previous results
+                testResults.style.display = 'block';
+                testResults.textContent = 'جاري تشغيل الاختبارات...\n\n';
+                
+                // Redirect console.log to our test results div
+                const originalConsoleLog = console.log;
+                const originalConsoleError = console.error;
+                
+                console.log = function() {
+                    const args = Array.from(arguments);
+                    testResults.textContent += args.join(' ') + '\n';
+                    originalConsoleLog.apply(console, arguments);
+                };
+                
+                console.error = function() {
+                    const args = Array.from(arguments);
+                    testResults.textContent += args.join(' ') + '\n';
+                    originalConsoleError.apply(console, arguments);
+                };
+                
+                // Run tests
+                setTimeout(() => {
+                    const results = runTests();
+                    
+                    // Restore console functions
+                    console.log = originalConsoleLog;
+                    console.error = originalConsoleError;
+                    
+                    // Update summary
+                    testSummary.textContent = `النتيجة: ${results.passed} ناجح، ${results.failed} فاشل، من أصل ${results.total} اختبار`;
+                    
+                    if (results.failed === 0) {
+                        testSummary.style.color = '#155724';
+                    } else {
+                        testSummary.style.color = '#721c24';
+                    }
+                }, 100);
+            });
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTheme();
+            setupEventListeners();
+        });
+    </script>
+</body>
+</html>
